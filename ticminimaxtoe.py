@@ -7,9 +7,10 @@ Classes:
 """
 
 from random import randint
+from typing import List
 import argparse
 
-class Game(object):
+class Game():
     """
     Class for the game itself
     """
@@ -26,28 +27,28 @@ class Game(object):
         self.status = "Running"
         self.current_player = "X"
 
-    def print_board(self):
+    def print_board(self) -> None:
         """Print the game board"""
         print('\n\n\n')
         for element in [self.board[i:i + 3] for i in range(0, len(self.board), 3)]:
             print(element)
 
-    def change_player(self):
+    def change_player(self) -> None:
         """Change the current player"""
         self.current_player = self.get_enemy(self.current_player)
 
     @staticmethod
-    def get_enemy(player):
+    def get_enemy(player: str) -> str:
         """Return the enemy player for a given player"""
         if player == "X":
             return "O"
         return "X"
 
-    def available_cells(self):
+    def available_cells(self) -> List[int]:
         """Return an array of empty board cells"""
         return [cell for cell, cell_value in enumerate(self.board) if cell_value is None]
 
-    def get_own_squares(self, player):
+    def get_own_squares(self, player: str) -> List[int]:
         """Return the board cells occupied by given player"""
         return [cell for cell, cell_value in enumerate(self.board) if cell_value == player]
 
@@ -70,7 +71,7 @@ class Game(object):
 
         return None
 
-    def is_game_over(self):
+    def is_game_over(self) -> bool:
         """Check whether the game ends or not"""
         if not self.available_cells():
             return True
@@ -78,12 +79,12 @@ class Game(object):
             return True
         return False
 
-    def make_move(self, cell, player):
+    def make_move(self, cell: int, player: str) -> None:
         """Make a move on the board"""
         self.board[cell] = player
         self.change_player()
 
-    def validate_move(self, cell):
+    def validate_move(self, cell: int) -> bool:
         """Validate that the move is legal"""
         if cell < 0 or cell > 8:
             return False
@@ -106,7 +107,7 @@ class AI(object):
         if difficulty:
             self.difficulty = difficulty
 
-    def __minimax(self, game, depth, player):
+    def __minimax(self, game, depth, player) -> int:
         """Recursively calculate the minimax value of a given game state"""
         if game.is_game_over():
             if game.get_winner() == "X":
@@ -132,7 +133,7 @@ class AI(object):
             best_value = min(best_value, move_value)
         return best_value
 
-    def __get_best_choice(self, game, depth, player):
+    def __get_best_choice(self, game, depth, player) -> int:
         """
         Calculate the best possible move for the given game state
 
@@ -163,25 +164,25 @@ class AI(object):
         return randint(min(free_cells), max(free_cells))
 
 
-    def __make_easy_move(self):
+    def __make_easy_move(self) -> int:
         """Make a random move and return the played cell"""
         available_moves = self.game.available_cells()
         cell = randint(min(available_moves), max(available_moves))
         return cell
 
-    def __make_master_move(self):
+    def __make_master_move(self) -> int:
         """Make a calculated move"""
         turns_left = len(self.game.available_cells())
         move = self.__get_best_choice(self.game, turns_left, self.game.current_player)
         return move
 
-    def play(self):
+    def play(self) -> int:
         """Call the correct function depending on the selected difficulty"""
         if self.difficulty == 'easy':
             return self.__make_easy_move()
         return self.__make_master_move()
 
-def main():
+def main() -> None:
     """Main game loop"""
     parser = argparse.ArgumentParser()
     parser.add_argument("--easy", help="Run the AI in easy mode", action="store_true")
